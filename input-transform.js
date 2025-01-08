@@ -34,28 +34,20 @@ const InputTransform = {
             const fileTypes = fileType.replaceAll(' ', '').split(',')
 
             for (const file of input.files) {
-                const fileName = file.name
-                let allowed = false
+                if (!fileTypes.some(type => file.name.endsWith(type))) {
+                    window.dispatchEvent(new CustomEvent('input-transform.error', {
+                        detail: {
+                            input,
+                            file,
+                            message: InputTransform.messages.fileType(fileType),
+                        }
+                    }));
 
-                fileTypes.forEach(fileType => {
-                    if (fileName.endsWith(fileType)) {
-                        allowed = true
-                        return
-                    }
-                })
-
-                if (allowed === false) {
-                    window.dispatchEvent(new CustomEvent('input-format.error', { detail: {
-                        input,
-                        file,
-                        message: InputTransform.messages.fileType(fileType),
-                    } }));
-
-                    input.value = null
+                    input.value = null;
                     input.type = "text";
                     input.type = "file";
 
-                    return
+                    return;
                 }
             }
         },
@@ -72,7 +64,7 @@ const InputTransform = {
                 const imageSize = file.size
 
                 if (imageSize > maxImageSize) {
-                    window.dispatchEvent(new CustomEvent('input-format.error', { detail: {
+                    window.dispatchEvent(new CustomEvent('input-transform.error', { detail: {
                         input,
                         file,
                         imageSize,
@@ -87,26 +79,28 @@ const InputTransform = {
                 }
             }
         },
+        getOrCreateHiddenInput: input => {
+            if (input.hasAttribute('name')) {
+                const newInput = document.createElement('input');
+                newInput.type = 'hidden';
+                newInput.name = input.name;
+
+                input.dataset.inputTransformName = newInput.name;
+                input.name = null;
+                input.removeAttribute('name');
+
+                input.after(newInput);
+                return newInput;
+            }
+
+            return input.parentElement.querySelector(`[name="${input.dataset.inputTransformName}"]`);
+        },
         imageBase64: (_, __, input) => {
             if (!input.files || input.files.length === 0) return
 
             const imagesBase64 = []
 
-            let newInput = null
-
-            if (input.hasAttribute('name')) {
-                newInput = document.createElement('input')
-                newInput.type = 'hidden'
-                newInput.name = input.name
-
-                input.dataset.inputTransformName = newInput.name
-                input.name = null
-                input.removeAttribute('name')
-
-                input.after(newInput)
-            } else {
-                newInput = input.parentElement.querySelector(`[name="${input.dataset.inputTransformName}"]`)
-            }
+            const newInput = InputTransform.getOrCreateHiddenInput(input)
 
             for (const file of input.files) {
                 const reader = new FileReader();
@@ -119,7 +113,7 @@ const InputTransform = {
                 reader.onerror = error => {
                     console.log('Error: ', error);
 
-                    window.dispatchEvent(new CustomEvent('input-format.error', { detail: {
+                    window.dispatchEvent(new CustomEvent('input-transform.error', { detail: {
                         input,
                         file,
                         message: error
@@ -132,21 +126,7 @@ const InputTransform = {
 
             const imagesBase64 = []
 
-            let newInput = null
-
-            if (input.hasAttribute('name')) {
-                newInput = document.createElement('input')
-                newInput.type = 'hidden'
-                newInput.name = input.name
-
-                input.dataset.inputTransformName = newInput.name
-                input.name = null
-                input.removeAttribute('name')
-
-                input.after(newInput)
-            } else {
-                newInput = input.parentElement.querySelector(`[name="${input.dataset.inputTransformName}"]`)
-            }
+            const newInput = InputTransform.getOrCreateHiddenInput(input)
 
             for (const file of input.files) {
                 const fileNameWihtoutExtension = file.name.split('.').slice(0, -1).join('.')
@@ -170,7 +150,7 @@ const InputTransform = {
                         reader.onerror = error => {
                             console.log('Error: ', error);
 
-                            window.dispatchEvent(new CustomEvent('input-format.error', { detail: {
+                            window.dispatchEvent(new CustomEvent('input-transform.error', { detail: {
                                 input,
                                 file,
                                 message: error
@@ -183,7 +163,7 @@ const InputTransform = {
             }
         },
     },
-    methodToAttribute: method => `data-input-format-${method.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`,
+    methodToAttribute: method => `data-input-transform-${method.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`,
     init: (input, options) => {
         if (!input || !options || typeof options !== 'object' || input.InputTransformInit) return
         if (typeof input === 'string') input = document.querySelector(input)
@@ -192,11 +172,14 @@ const InputTransform = {
         input.InputTransformOptions = options
 
         input.addEventListener('input', () => {
-            Object.keys(input.InputTransformOptions).forEach(method => {
-                const result = InputTransform.methods[method](input.value, input.InputTransformOptions[method], input)
+            let newValue = input.value;
 
-                if (result !== null && result !== undefined) input.value = result
-            })
+            Object.keys(input.InputTransformOptions).forEach(method => {
+                const result = InputTransform.methods[method](newValue, input.InputTransformOptions[method], input);
+                if (result !== null && result !== undefined) newValue = result;
+            });
+
+            input.value = newValue;
         })
     },
     initOne: input => {
