@@ -43,6 +43,13 @@ const InputTransform = {
                         }
                     }));
 
+                    input.dispatchEvent(new CustomEvent('input-transform.error', {
+                        detail: {
+                            file,
+                            message: InputTransform.messages.fileType(fileType),
+                        }
+                    }));
+
                     input.value = null;
                     input.type = "text";
                     input.type = "file";
@@ -70,6 +77,12 @@ const InputTransform = {
                         imageSize,
                         message: InputTransform.messages.maxImageSize(maxImageSize),
                     } }));
+
+                    input.dispatchEvent(new CustomEvent('input-transform.error', { detail: {
+                        file,
+                        imageSize,
+                        message: InputTransform.messages.maxImageSize(maxImageSize),
+                    }}))
 
                     input.value = null
                     input.type = "text";
@@ -155,6 +168,11 @@ const InputTransform = {
                                 file,
                                 message: error
                             }}))
+
+                            input.dispatchEvent(new CustomEvent('input-transform.error', { detail: {
+                                file,
+                                message: error
+                            }}))
                         }
                     }, 'image/webp');
                 };
@@ -171,6 +189,10 @@ const InputTransform = {
         input.InputTransformInit = true
         input.InputTransformOptions = options
 
+        input.dispatchEvent(new CustomEvent('input-transform.init', {
+            detail: options
+        }))
+
         input.addEventListener('input', () => {
             let newValue = input.value;
 
@@ -180,6 +202,8 @@ const InputTransform = {
             });
 
             input.value = newValue;
+
+            input.dispatchEvent(new CustomEvent('input-transform.change'))
         })
     },
     initOne: input => {

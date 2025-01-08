@@ -48,7 +48,36 @@ InputTransform.init('input#username', {
 
 // Change option
 document.getElementById('username').InputTransformOptions.maxLength = 25;
+
+// Initialize image transformations
+InputTransform.init('input#image-upload', {
+    fileType: 'jpg,png,webp',
+    maxImageSize: 500000, // 500 KB
+    imageBase64: true
+});
 ```
+
+### Using `initOne` and `initAll`
+
+Instead of manually defining transformations in JavaScript, you can use HTML data attributes. The `initOne` method applies transformations based on an element's attributes, while `initAll` applies them to all inputs on the page.
+
+#### Example:
+
+```html
+<input type="text" id="username" data-input-transform-max-length="25" data-input-transform-trim="true">
+```
+
+```js
+InputTransform.initOne('#username');
+```
+This will automatically trim spaces and limit the input to 25 characters.
+
+Alternatively, to initialize all matching inputs on the page:
+
+```js
+InputTransform.initAll();
+```
+This will apply transformations to all elements that have `data-input-transform-*` attributes.
 
 ## API
 
@@ -79,33 +108,33 @@ document.getElementById('username').InputTransformOptions.maxLength = 25;
 
 ## Initialization Methods
 
-| Method       | Description |
-|-------------|-------------|
-| `init(input, options)` | Initializes an input field with specified transformation methods. |
-| `initOne(input)` | Automatically initializes a single input using data attributes. |
-| `initAll()` | Automatically initializes all inputs on the page that have transformation data attributes. |
+| Method       | Description | Parameters |
+|-------------|-------------|------------|
+| `init` | Initializes an input field with specified transformation methods. | `input` (string or Element), `options` (object) |
+| `initOne` | Automatically initializes a single input using data attributes. | `input` (string or Element) |
+| `initAll` | Automatically initializes all inputs on the page that have transformation data attributes. | None |
 
-### Using `initOne` and `initAll`
+## Events
 
-Instead of manually defining transformations in JavaScript, you can use HTML data attributes. The `initOne` method applies transformations based on an element's attributes, while `initAll` applies them to all inputs on the page.
+InputTransform emits custom events that you can listen to:
 
-#### Example:
+| Event Name | Description |
+|-----------|-------------|
+| `input-transform.init` | Triggered when an input transformation is initialized. |
+| `input-transform.error` | Triggered when an error occurs (e.g., invalid file type or size). |
+| `input-transform.change` | Triggered when the input value is transformed. |
 
-```html
-<input type="text" id="username" data-input-transform-max-length="25" data-input-transform-trim="true">
-```
-
-```js
-InputTransform.initOne('#username');
-```
-This will automatically trim spaces and limit the input to 25 characters.
-
-Alternatively, to initialize all matching inputs on the page:
+### Example:
 
 ```js
-InputTransform.initAll();
+document.getElementById('username').addEventListener('input-transform.change', (event) => {
+    console.log('Transformed value:', event.detail.value);
+});
+
+document.getElementById('image-upload').addEventListener('input-transform.error', (event) => {
+    console.error('Error:', event.detail.message);
+});
 ```
-This will apply transformations to all elements that have `data-input-transform-*` attributes.
 
 ## License
 
