@@ -1,4 +1,4 @@
-# input-format
+# input-transform
 
 [desc]
 
@@ -9,31 +9,31 @@
 Install the library using NPM:
 
 ```bash
-npm i @lullaby6/input-format
+npm i @lullaby6/input-transform
 ```
 
 #### Import
 
 ```js
 // CommonJS
-const InputFormat = require('@lullaby6/input-format');
+const InputTransform = require('@lullaby6/input-transform');
 
 // ES Modules
-import InputFormat from '@lullaby6/input-format';
+import InputTransform from '@lullaby6/input-transform';
 ```
 
 #### CDN
 
 ```html
-<script src='https://cdn.jsdelivr.net/gh/lullaby6/input-format/input-format.min.js'></script>
+<script src='https://cdn.jsdelivr.net/gh/lullaby6/input-transform/input-transform.min.js'></script>
 ```
 
 #### Download
 
-<a href="https://cdn.jsdelivr.net/gh/lullaby6/input-format/input-format.min.js" target="_blank">Download</a> and include the downloaded file in your project:
+<a href="https://cdn.jsdelivr.net/gh/lullaby6/input-transform/input-transform.min.js" target="_blank">Download</a> and include the downloaded file in your project:
 
 ```html
-<script src="/path/to/input-format.min.js"></script>
+<script src="/path/to/input-transform.min.js"></script>
 ```
 
 ## Usage
