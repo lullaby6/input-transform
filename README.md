@@ -127,13 +127,13 @@ InputTransform emits custom events that you can listen to:
 ### Example:
 
 ```js
-document.getElementById('username').addEventListener('input-transform.change', (event) => {
+document.getElementById('username').addEventListener('input-transform.change', event => {
     console.log('Transformed value:', event.detail.value);
 });
 
-document.getElementById('image-upload').addEventListener('input-transform.error', (event) => {
+window.addEventListener('input-transform.error', event => {
     console.error('Error:', event.detail.message);
-});
+})
 ```
 
 ## License
