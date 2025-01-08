@@ -1,0 +1,231 @@
+(() => {
+    window.InputFormat = {
+        messages: {
+            maxImageSize: value => `The maximum image size is ${value} bytes`,
+            fileType: value => `Only files with the following extensions are allowed: ${value}`,
+        },
+        methods: {
+            regex: (value, {regex, replace = ''}) => value.replace(regex, replace),
+            regexs: (value, regexs) => {
+                regexs.forEach(({regex, replace = ''}) => value = value.replaceAll({regex}, replace))
+                return value
+            },
+            minNumber: (value, minNumber) => value ? Math.max(minNumber, parseFloat(value.replaceAll(/\D+/g, ''))) : '',
+            maxNumber: (value, maxNumber) => value ? Math.min(maxNumber, parseFloat(value.replaceAll(/\D+/g, ''))) : '',
+            uppercase: value => value.toUpperCase(),
+            lowercase: value => value.toLowerCase(),
+            trim: value => value.trim(),
+            clearSpaces: value => value.replaceAll(' ', ''),
+            clearNumbers: value => value.replaceAll(/\d+/g, ''),
+            onlyNumbers: value => value.replaceAll(/\D+/g, ''),
+            clearSymbols: value => value.replaceAll(/[^a-zA-Z0-9]/g, ''),
+            onlySymbols: value => value.replaceAll(/[a-zA-Z0-9]/g, ''),
+            clearLetters: value => value.replaceAll(/[a-zA-Z]/g, ''),
+            onlyLetters: value => value.replaceAll(/[^a-zA-Z]/g, ''),
+            maxLength: (value, maxLength) => value.slice(0, maxLength),
+            clear: (value, clear) => value.replaceAll(clear, ''),
+            clears: (value, clears) => {
+                clears.split(',').forEach(clear => value = value.replaceAll(clear, ''))
+                return value
+            },
+            fileType: (_, fileType, input) => {
+                if (!input.files || input.files.length === 0) return
+
+                const fileTypes = fileType.replaceAll(' ', '').split(',')
+
+                for (const file of input.files) {
+                    const fileName = file.name
+                    let allowed = false
+
+                    fileTypes.forEach(fileType => {
+                        if (fileName.endsWith(fileType)) {
+                            allowed = true
+                            return
+                        }
+                    })
+
+                    if (allowed === false) {
+                        window.dispatchEvent(new CustomEvent('input-format.error', { detail: {
+                            input,
+                            file,
+                            message: InputFormat.messages.fileType(fileType),
+                        } }));
+
+                        input.value = null
+                        input.type = "text";
+                        input.type = "file";
+
+                        return
+                    }
+                }
+            },
+            maxImageWidth: (value, maxImageWidth, input) => {
+                if (!input.files || input.files.length === 0) return
+            },
+            maxImageHeight: (value, maxImageHeight, input) => {
+                if (!input.files || input.files.length === 0) return
+            },
+            maxImageSize: (_, maxImageSize, input) => {
+                if (!input.files || input.files.length === 0) return
+
+                for (const file of input.files) {
+                    const imageSize = file.size
+
+                    if (imageSize > maxImageSize) {
+                        window.dispatchEvent(new CustomEvent('input-format.error', { detail: {
+                            input,
+                            file,
+                            imageSize,
+                            message: InputFormat.messages.maxImageSize(maxImageSize),
+                        } }));
+
+                        input.value = null
+                        input.type = "text";
+                        input.type = "file";
+
+                        return
+                    }
+                }
+            },
+            imageBase64: (_, __, input) => {
+                if (!input.files || input.files.length === 0) return
+
+                const imagesBase64 = []
+
+                let newInput = null
+
+                if (input.hasAttribute('name')) {
+                    newInput = document.createElement('input')
+                    newInput.type = 'hidden'
+                    newInput.name = input.name
+
+                    input.dataset.inputFormatName = newInput.name
+                    input.name = null
+                    input.removeAttribute('name')
+
+                    input.after(newInput)
+                } else {
+                    newInput = input.parentElement.querySelector(`[name="${input.dataset.inputFormatName}"]`)
+                }
+
+                for (const file of input.files) {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => {
+                        imagesBase64.push(reader.result)
+
+                        newInput.value = imagesBase64.join(',')
+                    };
+                    reader.onerror = error => {
+                        console.log('Error: ', error);
+
+                        window.dispatchEvent(new CustomEvent('input-format.error', { detail: {
+                            input,
+                            file,
+                            message: error
+                        }}))
+                    }
+                }
+            },
+            imageBase64Webp: (value, _, input) => {
+                if (!input.files || input.files.length === 0) return
+
+                const imagesBase64 = []
+
+                let newInput = null
+
+                if (input.hasAttribute('name')) {
+                    newInput = document.createElement('input')
+                    newInput.type = 'hidden'
+                    newInput.name = input.name
+
+                    input.dataset.inputFormatName = newInput.name
+                    input.name = null
+                    input.removeAttribute('name')
+
+                    input.after(newInput)
+                } else {
+                    newInput = input.parentElement.querySelector(`[name="${input.dataset.inputFormatName}"]`)
+                }
+
+                for (const file of input.files) {
+                    const fileNameWihtoutExtension = file.name.split('.').slice(0, -1).join('.')
+
+                    const image = new Image();
+                    image.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = image.naturalWidth;
+                        canvas.height = image.naturalHeight;
+                        canvas.getContext('2d').drawImage(image, 0, 0);
+                        canvas.toBlob((blob) => {
+                            const image = new File([blob], `${fileNameWihtoutExtension}.webp`, { type: blob.type });
+
+                            const reader = new FileReader();
+                            reader.readAsDataURL(image);
+                            reader.onload = () => {
+                                imagesBase64.push(reader.result)
+
+                                newInput.value = imagesBase64.join(',')
+                            };
+                            reader.onerror = error => {
+                                console.log('Error: ', error);
+
+                                window.dispatchEvent(new CustomEvent('input-format.error', { detail: {
+                                    input,
+                                    file,
+                                    message: error
+                                }}))
+                            }
+                        }, 'image/webp');
+                    };
+
+                    image.src = URL.createObjectURL(file);
+                }
+            },
+        },
+        methodToAttribute: method => `data-input-format-${method.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`,
+        init: (input, methods) => {
+            if (!input || !methods || typeof methods !== 'object' || input.InputFormatLoaded) return
+            if (typeof input === 'string') input = document.querySelector(input)
+
+            input.InputFormatLoaded = true
+
+            input.addEventListener('input', () => {
+                Object.keys(methods).forEach(method => {
+                    const result = InputFormat.methods[method](input.value, methods[method], input)
+
+                    if (result !== null && result !== undefined) input.value = result
+                })
+            })
+        },
+        initOne: input => {
+            const methods = {}
+
+            Object.keys(InputFormat.methods).forEach(method => {
+                const dataset = `inputFormat${method[0].toUpperCase() + method.substring(1)}`
+
+                if (typeof input.dataset[dataset] == 'string' && (InputFormat.methods[method].length > 1 || input.dataset[dataset] !== 'false')) methods[method] = input.dataset[dataset]
+            })
+
+            InputFormat.init(input, methods)
+        },
+        initAll: () => {
+            const attributes = Object.keys(InputFormat.methods).map(InputFormat.methodToAttribute)
+            const query = `input${attributes.map(a => `[${a}]`).join(',')}`
+
+            document.querySelectorAll(query).forEach(input => {
+                const methods = {}
+
+                Object.keys(InputFormat.methods).forEach(method => {
+                    const dataset = `inputFormat${method[0].toUpperCase() + method.substring(1)}`
+
+                    if (typeof input.dataset[dataset] == 'string' && (InputFormat.methods[method].length > 1 || input.dataset[dataset] !== 'false')) methods[method] = input.dataset[dataset]
+                })
+
+                InputFormat.init(input, methods)
+            })
+        }
+    }
+
+    if (document) document.addEventListener('DOMContentLoaded', InputFormat.initAll)
+})()
