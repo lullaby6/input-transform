@@ -45,6 +45,9 @@ InputTransform.init('input#username', {
     trim: true,
     maxLength: 20,
 })
+
+// change option
+document.getElementById('#username').InputTransformOptions.maxLength = 25
 ```
 
 ## API

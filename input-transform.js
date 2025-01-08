@@ -48,7 +48,7 @@ const InputTransform = {
                     window.dispatchEvent(new CustomEvent('input-format.error', { detail: {
                         input,
                         file,
-                        message: InputFormat.messages.fileType(fileType),
+                        message: InputTransform.messages.fileType(fileType),
                     } }));
 
                     input.value = null
@@ -76,7 +76,7 @@ const InputTransform = {
                         input,
                         file,
                         imageSize,
-                        message: InputFormat.messages.maxImageSize(maxImageSize),
+                        message: InputTransform.messages.maxImageSize(maxImageSize),
                     } }));
 
                     input.value = null
@@ -99,13 +99,13 @@ const InputTransform = {
                 newInput.type = 'hidden'
                 newInput.name = input.name
 
-                input.dataset.inputFormatName = newInput.name
+                input.dataset.inputTransformName = newInput.name
                 input.name = null
                 input.removeAttribute('name')
 
                 input.after(newInput)
             } else {
-                newInput = input.parentElement.querySelector(`[name="${input.dataset.inputFormatName}"]`)
+                newInput = input.parentElement.querySelector(`[name="${input.dataset.inputTransformName}"]`)
             }
 
             for (const file of input.files) {
@@ -139,13 +139,13 @@ const InputTransform = {
                 newInput.type = 'hidden'
                 newInput.name = input.name
 
-                input.dataset.inputFormatName = newInput.name
+                input.dataset.inputTransformName = newInput.name
                 input.name = null
                 input.removeAttribute('name')
 
                 input.after(newInput)
             } else {
-                newInput = input.parentElement.querySelector(`[name="${input.dataset.inputFormatName}"]`)
+                newInput = input.parentElement.querySelector(`[name="${input.dataset.inputTransformName}"]`)
             }
 
             for (const file of input.files) {
@@ -184,15 +184,16 @@ const InputTransform = {
         },
     },
     methodToAttribute: method => `data-input-format-${method.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`,
-    init: (input, methods) => {
-        if (!input || !methods || typeof methods !== 'object' || input.InputFormatLoaded) return
+    init: (input, options) => {
+        if (!input || !options || typeof options !== 'object' || input.InputTransformInit) return
         if (typeof input === 'string') input = document.querySelector(input)
 
-        input.InputFormatLoaded = true
+        input.InputTransformInit = true
+        input.InputTransformOptions = options
 
         input.addEventListener('input', () => {
-            Object.keys(methods).forEach(method => {
-                const result = InputFormat.methods[method](input.value, methods[method], input)
+            Object.keys(input.InputTransformOptions).forEach(method => {
+                const result = InputTransform.methods[method](input.value, input.InputTransformOptions[method], input)
 
                 if (result !== null && result !== undefined) input.value = result
             })
@@ -203,28 +204,28 @@ const InputTransform = {
 
         const methods = {}
 
-        Object.keys(InputFormat.methods).forEach(method => {
-            const dataset = `inputFormat${method[0].toUpperCase() + method.substring(1)}`
+        Object.keys(InputTransform.methods).forEach(method => {
+            const dataset = `inputTransform${method[0].toUpperCase() + method.substring(1)}`
 
-            if (typeof input.dataset[dataset] == 'string' && (InputFormat.methods[method].length > 1 || input.dataset[dataset] !== 'false')) methods[method] = input.dataset[dataset]
+            if (typeof input.dataset[dataset] == 'string' && (InputTransform.methods[method].length > 1 || input.dataset[dataset] !== 'false')) methods[method] = input.dataset[dataset]
         })
 
-        InputFormat.init(input, methods)
+        InputTransform.init(input, methods)
     },
     initAll: () => {
-        const attributes = Object.keys(InputFormat.methods).map(InputFormat.methodToAttribute)
+        const attributes = Object.keys(InputTransform.methods).map(InputTransform.methodToAttribute)
         const query = `input${attributes.map(a => `[${a}]`).join(',')}`
 
         document.querySelectorAll(query).forEach(input => {
             const methods = {}
 
-            Object.keys(InputFormat.methods).forEach(method => {
-                const dataset = `inputFormat${method[0].toUpperCase() + method.substring(1)}`
+            Object.keys(InputTransform.methods).forEach(method => {
+                const dataset = `inputTransform${method[0].toUpperCase() + method.substring(1)}`
 
-                if (typeof input.dataset[dataset] == 'string' && (InputFormat.methods[method].length > 1 || input.dataset[dataset] !== 'false')) methods[method] = input.dataset[dataset]
+                if (typeof input.dataset[dataset] == 'string' && (InputTransform.methods[method].length > 1 || input.dataset[dataset] !== 'false')) methods[method] = input.dataset[dataset]
             })
 
-            InputFormat.init(input, methods)
+            InputTransform.init(input, methods)
         })
     }
 }
