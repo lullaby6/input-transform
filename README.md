@@ -33,7 +33,7 @@ import InputFormat from '@lullaby6/input-format';
 <a href="https://cdn.jsdelivr.net/gh/lullaby6/input-format/input-format.min.js" target="_blank">Download</a> and include the downloaded file in your project:
 
 ```html
-<script src="/path/to/apix.min.js"></script>
+<script src="/path/to/input-format.min.js"></script>
 ```
 
 ## Usage
