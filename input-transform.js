@@ -13,6 +13,7 @@ const InputTransform = {
         maxNumber: (value, maxNumber) => value ? Math.min(maxNumber, parseFloat(value.replaceAll(/\D+/g, ''))) : '',
         uppercase: value => value.toUpperCase(),
         lowercase: value => value.toLowerCase(),
+        capitalize: value => value.charAt(0).toUpperCase() + value.slice(1),
         trim: value => value.trim(),
         clearSpaces: value => value.replaceAll(' ', ''),
         clearNumbers: value => value.replaceAll(/\d+/g, ''),

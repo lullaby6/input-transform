@@ -39,7 +39,12 @@ import InputTransform from '@lullaby6/input-transform';
 ## Usage
 
 ```js
-
+// simple example
+InputTransform.init('input#username', {
+    capitalize: true,
+    trim: true,
+    maxLength: 20,
+})
 ```
 
 ## API
