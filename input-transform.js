@@ -189,6 +189,13 @@ const InputTransform = {
         input.InputTransformInit = true
         input.InputTransformOptions = options
 
+        window.dispatchEvent(new CustomEvent('input-transform.init', {
+            detail: {
+                input,
+                options
+            }
+        }))
+
         input.dispatchEvent(new CustomEvent('input-transform.init', {
             detail: options
         }))
@@ -202,6 +209,10 @@ const InputTransform = {
             });
 
             input.value = newValue;
+
+            window.dispatchEvent(new CustomEvent('input-transform.change'), {
+                detail: input
+            })
 
             input.dispatchEvent(new CustomEvent('input-transform.change'))
         })

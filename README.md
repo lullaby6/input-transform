@@ -53,7 +53,7 @@ document.getElementById('username').InputTransformOptions.maxLength = 25;
 InputTransform.init('input#image-upload', {
     fileType: 'jpg,png,webp',
     maxImageSize: 500000, // 500 KB
-    imageBase64: true
+    imageBase64: true // transform the input image to a image in base64 encoded string
 });
 ```
 
