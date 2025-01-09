@@ -1,7 +1,8 @@
 {
-  "name": "input-format",
+  "name": "input-transform",
   "version": "1.0.0",
-  "main": "input-format.js",
+  "main": "input-transform.min.cjs.js",
+  "module": "input-transform.min.mjs.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
