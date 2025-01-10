@@ -9,17 +9,17 @@ InputTransform is a lightweight JavaScript library that provides various input t
 Install the library using NPM:
 
 ```bash
-npm i @lullaby6/input-transform
+npm i input-transform
 ```
 
 ### Import
 
 ```js
 // CommonJS
-const InputTransform = require('@lullaby6/input-transform');
+const InputTransform = require('input-transform');
 
 // ES Modules
-import InputTransform from '@lullaby6/input-transform';
+import InputTransform from 'input-transform';
 ```
 
 ### CDN
