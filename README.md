@@ -1,4 +1,4 @@
-# InputTransform
+# Input Transform
 
 InputTransform is a lightweight JavaScript library that provides various input transformations, such as formatting text, validating file uploads, and converting images to Base64 or WebP format.
 
