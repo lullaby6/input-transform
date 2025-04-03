@@ -25,15 +25,23 @@ import InputTransform from 'input-transform';
 ### CDN
 
 ```html
-<script src='https://cdn.jsdelivr.net/gh/lullaby6/input-transform/input-transform.min.js'></script>
+<script src='https://cdn.jsdelivr.net/gh/lullaby6/input-transform/input-transform.min.umd.js'></script>
+```
+
+You can aslo import the Module format:
+
+```html
+<script type="module">
+    import InputFormat from "https://cdn.jsdelivr.net/gh/lullaby6/input-transform/input-transform.min.mjs.js";
+</script>
 ```
 
 ### Download
 
-<a href="https://cdn.jsdelivr.net/gh/lullaby6/input-transform/input-transform.min.js" target="_blank">Download</a> and include the downloaded file in your project:
+<a href="https://cdn.jsdelivr.net/gh/lullaby6/input-transform/input-transform.min.umd.js" target="_blank">Download</a> and include the downloaded file in your project:
 
 ```html
-<script src="/path/to/input-transform.min.js"></script>
+<script src="/path/to/input-transform.min.umd.js"></script>
 ```
 
 ## Usage
